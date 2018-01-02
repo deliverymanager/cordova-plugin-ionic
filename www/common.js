@@ -60,9 +60,6 @@ var IonicCordova = {
   forceCrash: function(success, fail) {
     exec(success, fail, "IonicCordovaCommon", "forceCrash");
   },
-  getAppInfo: function(success, fail) {
-    exec(success, fail, "IonicCordovaCommon", "getAppInfo");
-  },
   deploy: IonicDeploy
 };
 
