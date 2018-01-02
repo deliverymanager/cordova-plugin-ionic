@@ -24,8 +24,7 @@
     [json setObject:bundleVersion forKey:@"bundleVersion"];
     [json setObject:"ios" forKey:@"platform"];
 
-    [CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:json] callbackId:command.callbackId];
 
 }
 
