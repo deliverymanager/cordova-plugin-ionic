@@ -3,7 +3,7 @@
 
 @implementation IonicCordovaCommon
 
-- (void)getAppInfo:(CDVInvokedUrlCommand*)command
+- (void) getAppInfo:(CDVInvokedUrlCommand*)command
 {
     NSString* callbackId = command.callbackId;
 
@@ -11,7 +11,7 @@
     NSString* version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
     NSString* bundleName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
     NSString* bundleVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
-    
+
     if (bundleVersion == nil) {
       NSLog(@"CFBundleShortVersionString was nil, attempting CFBundleVersion");
       bundleVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
