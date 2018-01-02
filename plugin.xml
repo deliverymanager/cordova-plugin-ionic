@@ -128,6 +128,8 @@
         <source-file src="src/ios/Unirest/UNIHTTPStringResponse.m" />
         <header-file src="src/ios/Unirest/UNIJsonNode.h" />
         <source-file src="src/ios/Unirest/UNIJsonNode.m" />
+        <header-file src="src/ios/IonicCordovaCommon.h" />
+        <source-file src="src/ios/IonicCordovaCommon.m" />
     </platform>
 
     <platform name="android">
@@ -140,6 +142,7 @@
                 <param name="android-package" value="com.ionicframework.deploy.IonicDeploy"/>
                 <param name="onload" value="true"/>
             </feature>
+
         </config-file>
 
         <config-file target="res/values/strings.xml" parent="/resources">
