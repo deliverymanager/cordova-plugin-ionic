@@ -84,7 +84,7 @@ public class IonicDeploy extends CordovaPlugin {
   boolean debug = true;
   boolean isLoading = false;
   SharedPreferences prefs = null;
-  int maxVersions = 3;
+  int maxVersions = 1;
   CordovaWebView v = null;
   String version_label = null;
   boolean ignore_deploy = false;
@@ -171,7 +171,7 @@ public class IonicDeploy extends CordovaPlugin {
     try {
       this.maxVersions = Integer.parseInt(getStringResourceByName("ionic_max_versions"));
     } catch(NumberFormatException e) {
-      this.maxVersions = 3;
+      this.maxVersions = 1;
     }
 
     this.initVersionChecks();
