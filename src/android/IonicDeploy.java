@@ -599,7 +599,7 @@ public class IonicDeploy extends CordovaPlugin {
         String[] version_string = version.split("\\|");
         logMessage("VERSION", version);
         int version_number = Integer.parseInt(version_string[1]);
-        if (version_number < threshold) {
+        if (version_number <= threshold) {
           logMessage("REMOVING", version);
           i.remove();
           removeVersion(version_string[0]);

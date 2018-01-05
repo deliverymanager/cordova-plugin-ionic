@@ -724,7 +724,7 @@ static NSOperationQueue *delegateQueue;
             NSString *versionString = versions[index];
             NSArray *version_parts = [versionString componentsSeparatedByString:@"|"];
             NSInteger version_number = [version_parts[0] intValue];
-            if (version_number < threshold) {
+            if (version_number <= threshold) {
                 [versions removeObjectAtIndex:index];
                 [self removeVersion:version_parts[1]];
             }
