@@ -2,7 +2,7 @@
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     id="cordova-plugin-ionic"
-    version="2.0.4">
+    version="3.1.2">
     <name>IonicCordova</name>
     <description>Common Cordova functionality for Ionic apps</description>
     <license>MIT</license>
@@ -17,6 +17,7 @@
 
     <preference name="APP_ID" />
     <preference name="CHANNEL_NAME" />
+    <preference name="WARN_DEBUG" default="false"/>
     <preference name="UPDATE_API" default="https://api.ionicjs.com" />
     <preference name="UPDATE_METHOD" default="background" />
     <preference name="MAX_STORE" default="1" />
@@ -37,6 +38,10 @@
             <string>$APP_ID</string>
         </config-file>
 
+        <config-file target="*-Info.plist" parent="IonDebug">
+            <string>$WARN_DEBUG</string>
+        </config-file>
+
         <config-file target="*-Info.plist" parent="IonChannelName">
             <string>$CHANNEL_NAME</string>
         </config-file>
@@ -54,7 +59,7 @@
         </config-file>
 
         <header-file src="src/ios/CDVSplashScreen+IonicDeploy.h" />
-        <source-file src="src/ios/CDVSplashScreen+IonicDeploy.m" />      
+        <source-file src="src/ios/CDVSplashScreen+IonicDeploy.m" />
         <header-file src="src/ios/IonicConstant.h" />
         <source-file src="src/ios/IonicConstant.m" />
         <header-file src="src/ios/IonicDeploy.h" />
@@ -147,6 +152,7 @@
 
         <config-file target="res/values/strings.xml" parent="/resources">
             <string name="ionic_app_id">$APP_ID</string>
+            <string name="ionic_debug">$WARN_DEBUG</string>
             <string name="ionic_channel_name">$CHANNEL_NAME</string>
             <string name="ionic_update_api">$UPDATE_API</string>
             <string name="ionic_update_method">$UPDATE_METHOD</string>
@@ -157,5 +163,5 @@
         <source-file src="src/android/IonicDeploy.java" target-dir="src/com/ionicframework/deploy" />
     </platform>
 
-    <dependency id="cordova-plugin-splashscreen" version="^4.0.0"/>
+    <dependency id="cordova-plugin-splashscreen" version="^5.0.1"/>
 </plugin>

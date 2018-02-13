@@ -27,6 +27,7 @@ typedef struct JsonHttpResponse {
 @property int maxVersions;
 @property NSDictionary *last_update;
 @property Boolean ignore_deploy;
+@property NSString *shouldDebug;
 @property NSString *version_label;
 @property NSString *currentUUID;
 @property dispatch_queue_t serialQueue;
@@ -49,10 +50,15 @@ static NSOperationQueue *delegateQueue;
     return [prefs boolForKey:@"show_splash"];
 }
 
+
 - (BOOL) isDebug {
 #ifdef DEBUG
+if([self.shouldDebug isEqualToString:@"false"]) {
+    return NO;
+} else {
     return YES;
-#else 
+}
+#else
     return NO;
 #endif
 }
@@ -106,24 +112,49 @@ static NSOperationQueue *delegateQueue;
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     self.cordova_js_resource = [[NSBundle mainBundle] pathForResource:@"www/cordova" ofType:@"js"];
     self.serialQueue = dispatch_queue_create("Deploy Plugin Queue", NULL);
+
+    // Load version label
     self.version_label = [prefs stringForKey:@"ionicdeploy_version_label"];
-    if(self.version_label == nil) {
+    if (!self.version_label) {
         self.version_label = NO_DEPLOY_LABEL;
     }
-    self.maxVersions = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonMaxVersions"] intValue];
-    self.appId = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonAppId"]];
-    self.deploy_server = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonApi"]];
-    self.auto_update = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonUpdateMethod"]];
-    self.channel_tag = [prefs stringForKey:@"channel"];
-    if (self.channel_tag == nil) {
-        self.channel_tag = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonChannelName"]];
-        [prefs setObject: self.channel_tag forKey: @"channel"];
-        [prefs synchronize];
+
+    // Load App ID
+    self.appId = [prefs stringForKey:@"ion_app_id"];
+    if (!self.appId) {
+        self.appId = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonAppId"]];
     }
+
+    // Load Debug
+    self.shouldDebug = [prefs stringForKey:@"ion_debug"];
+    if (!self.shouldDebug) {
+        self.shouldDebug = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonDebug"]];
+    }
+
+    // Load Pro API
+    self.deploy_server = [prefs stringForKey:@"ion_api"];
+    if (!self.deploy_server) {
+        self.deploy_server = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonApi"]];
+    }
+
+    // Load update method
+    self.auto_update = [prefs stringForKey:@"ion_update_method"];
+    if (!self.auto_update) {
+        self.auto_update = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonUpdateMethod"]];
+    }
+
+    // Load target channel
+    self.channel_tag = [prefs stringForKey:@"channel"];
+    if (!self.channel_tag) {
+        self.channel_tag = [NSString stringWithFormat:@"%@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonChannelName"]];
+    }
+
+    self.maxVersions = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"IonMaxVersions"] intValue];
 
     [self initVersionChecks];
 
     if (![self.auto_update isEqualToString:@"none"] && [self parseCheckResponse:[self postDeviceDetails]]) {
+        // We want to check for updates on startup
         if (![self.auto_update isEqualToString:@"auto"]) {
             [prefs setBool:NO forKey:@"show_splash"];
             [prefs synchronize];
@@ -236,6 +267,7 @@ static NSOperationQueue *delegateQueue;
 }
 
 - (void) initialize:(CDVInvokedUrlCommand *)command {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSString *jsonString = [command.arguments objectAtIndex:0];
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSError *jsonError = nil;
@@ -249,16 +281,25 @@ static NSOperationQueue *delegateQueue;
 
     if ([jsonRes valueForKey:@"appId"] != nil) {
         self.appId = [jsonRes valueForKey:@"appId"];
+        [prefs setObject:self.appId forKey:@"ion_app_id"];
+    }
+
+    if ([jsonRes valueForKey:@"debug"] != nil) {
+        self.appId = [jsonRes valueForKey:@"debug"];
+        [prefs setObject:self.appId forKey:@"ion_debug"];
     }
 
     if ([jsonRes valueForKey:@"host"] != nil) {
         self.deploy_server = [jsonRes valueForKey:@"host"];
+        [prefs setObject:self.deploy_server forKey:@"ion_api"];
     }
 
     if ([jsonRes valueForKey:@"channel"] != nil) {
         self.channel_tag = [jsonRes valueForKey:@"channel"];
+        [prefs setObject:self.channel_tag forKey:@"channel"];
     }
-    
+   
+    [prefs synchronize];
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:nil] callbackId:command.callbackId];
 }
 
@@ -417,7 +458,9 @@ static NSOperationQueue *delegateQueue;
 
     if(upstream_uuid != nil && [self hasVersion:upstream_uuid]) {
         [self updateVersionLabel:NOTHING_TO_IGNORE];
-        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"done"] callbackId:self.callbackId];
+        if (self.callbackId) {
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"true"] callbackId:self.callbackId];
+        }
     } else {
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
         NSString *libraryDirectory = [paths objectAtIndex:0];
@@ -436,6 +479,14 @@ static NSOperationQueue *delegateQueue;
 
         NSLog(@"Unzipped...");
         NSLog(@"Removing www.zip %d", success);
+
+        if (self.callbackId) {
+            if (success) {
+                [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"true"] callbackId:self.callbackId];
+            } else {
+                [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Error extracting deploy"] callbackId:self.callbackId];
+            }
+        }
     }
 }
 
@@ -518,11 +569,11 @@ static NSOperationQueue *delegateQueue;
 
                 // Find an existing cordova.js tag
                 NSRegularExpression *cordovaRegex = [NSRegularExpression
-                                                     regularExpressionWithPattern:@"<script src=(\"|')(.*\\/|)cordova\\.js.*(\"|')>.*<\\/script>"
+                                                     regularExpressionWithPattern:@"<script src=(?:\"|')(?:[\\w\\-\\:/\\.]*)?cordova\\.js(?:[\\.\\w]*)?(?:\"|')>(.|[\\r\\n])*?</script>"
                                                      options:NSRegularExpressionCaseInsensitive
                                                      error:&error];
                 NSArray *matches = [cordovaRegex matchesInString:htmlData options:0 range:NSMakeRange(0, [htmlData length])];
-                if (matches && matches.count){
+                if (matches && matches.count) {
                     // We found the script, update it
                     htmlData = [cordovaRegex
                                 stringByReplacingMatchesInString:htmlData
@@ -536,12 +587,12 @@ static NSOperationQueue *delegateQueue;
 
                 // Do redirect
                 NSLog(@"Redirecting to: %@", components.URL.absoluteString);
-                dispatch_async(dispatch_get_main_queue(), ^(void){
+                dispatch_async(dispatch_get_main_queue(), ^(void) {
                     NSLog(@"Reloading the web view.");
                     SEL reloadSelector = NSSelectorFromString(@"reload");
                     ((id (*)(id, SEL))objc_msgSend)(self.webView, reloadSelector);
                     [self.webViewEngine loadRequest:[NSURLRequest requestWithURL:components.URL]];
-                    
+                   
                     // Tell the swizzled splash it can hide after 3 seconds
                     // TODO: There HAS to be a more elegant way to accomplish this...
                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (uint64_t) 3 * NSEC_PER_SEC), dispatch_get_main_queue(), CFBridgingRelease(CFBridgingRetain(^(void) {
@@ -565,7 +616,7 @@ static NSOperationQueue *delegateQueue;
     NSMutableDictionary *deviceDict = [NSMutableDictionary
                                        dictionaryWithDictionary:@{
                                                                   @"platform" : @"ios",
-                                                                  @"binary_version" : app_version,
+                                                                  @"binary_version" : app_version
                                                                   }];
 
     if (uuid != nil && ![uuid  isEqual: @""]) {
@@ -745,7 +796,7 @@ static NSOperationQueue *delegateQueue;
 
     NSError *error = nil;
     BOOL success = [URL setResourceValue:[NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &error];
-    if(!success){
+    if(!success) {
         NSLog(@"Error excluding %@ from backup %@", [URL lastPathComponent], error);
     } else {
         NSLog(@"Excluding %@ from backup", pathToFolder);
