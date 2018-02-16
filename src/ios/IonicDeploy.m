@@ -581,8 +581,8 @@ if([self.shouldDebug isEqualToString:@"false"]) {
                                 options:0
                                 range:NSMakeRange(0, [htmlData length])
                                 withTemplate:newReference];
+                    NSLog(@"htmlData: %@", htmlData);
                 }
-                NSLog(@"htmlData: %@", htmlData);
 
                 // Write new index.html
                 [htmlData writeToFile:components.path atomically:YES encoding:NSUTF8StringEncoding error:nil];
