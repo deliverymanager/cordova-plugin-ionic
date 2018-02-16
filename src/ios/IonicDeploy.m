@@ -567,6 +567,8 @@ if([self.shouldDebug isEqualToString:@"false"]) {
                                           stringWithFormat:@"<script src=\"%@\"></script>", self.cordova_js_resource];
                 NSError *error = nil;
 
+                NSLog(@"before htmlData: %@", htmlData);
+
                 // Find an existing cordova.js tag
                 NSRegularExpression *cordovaRegex = [NSRegularExpression
                                                      regularExpressionWithPattern:@"<script src=(?:\"|')(?:[\\w\\-\\:/\\.]*)?cordova\\.js(?:[\\.\\w]*)?(?:\"|')>(.|[\\r\\n])*?</script>"
@@ -581,7 +583,7 @@ if([self.shouldDebug isEqualToString:@"false"]) {
                                 options:0
                                 range:NSMakeRange(0, [htmlData length])
                                 withTemplate:newReference];
-                    NSLog(@"htmlData: %@", htmlData);
+                    NSLog(@"After htmlData: %@", htmlData);
                 }
 
                 // Write new index.html
