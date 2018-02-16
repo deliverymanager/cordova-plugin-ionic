@@ -573,7 +573,7 @@ if([self.shouldDebug isEqualToString:@"false"]) {
                                                      options:NSRegularExpressionCaseInsensitive
                                                      error:&error];
                 NSArray *matches = [cordovaRegex matchesInString:htmlData options:0 range:NSMakeRange(0, [htmlData length])];
-                NSLog(@"found cordova.js scripts: %@", matches.count);
+                NSLog(@"found cordova.js scripts: %@", matches);
                 if (matches && matches.count) {
                     // We found the script, update it
                     htmlData = [cordovaRegex
