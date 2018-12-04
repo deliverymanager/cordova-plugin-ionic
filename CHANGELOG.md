@@ -1,16 +1,136 @@
 Changelog
 ======
+## 5.2.7
+* Change hook to run before_prepare and make it async ([#178](https://github.com/ionic-team/cordova-plugin-ionic/pull/178))
+* Fixed bug where the a new binary update would load an older cached version of the app ([#179)](https://github.com/ionic-team/cordova-plugin-ionic/issues/179))
 
-# 3.1.2
+## 5.2.6
+* Check for Capacitor and switch folder ([#164](https://github.com/ionic-team/cordova-plugin-ionic/pull/164))
+* Remove unused import ([#163](https://github.com/ionic-team/cordova-plugin-ionic/pull/163))
+* Delay device ready until pro checks are done ([#161](https://github.com/ionic-team/cordova-plugin-ionic/pull/161))
+
+## 5.2.5
+* Fix bug where binaryVersionName and binaryVersionCode are not returned from getConfiguation call
+* Fix bug where downloadUpdate progress call back would go from 0 to 50 rather than 100 ([#156](https://github.com/ionic-team/cordova-plugin-ionic/pull/156]))
+* Check if the device is online before checking for updates ([#154](https://github.com/ionic-team/cordova-plugin-ionic/pull/154))
+
+## 5.2.4
+* update check device resp to be accurate ([#148](https://github.com/ionic-team/cordova-plugin-ionic/pull/148))
+
+## 5.2.3
+
+* Fixed bug with AndroidManifest.xml syntax for real since our release script kept breaking it
+
+## 5.2.2
+
+* Fixed bug with AndroidManifest.xml syntax
+
+## 5.2.1
+
+* Add ACCESS_NETWORK_STATE permission to make navigator.onLine work on android
+
+## 5.2.0
+
+* Added `DisableDeploy` Cordova preference allowing disabling of the plugin
+* Requires `cordova-plugin-ionic-webview@^2.1.4` for `DisableDeploy` support to work correctly
+
+## 5.1.6
+
+* Fixed a bug with none update method strategy that could cause background updates upon resume of the app from background
+
+## 5.0.6
+
+* Fixed a bug with version rebulds that could make some initial redirects take up to 15 seconds.
+
+## 5.0.5
+
+* Rebuild a deploy directory in the case where the binary version has changed since the update was downloaded.
+
+# 5.0.0
+
+* Release!
+* Misc. bugfixes from rc3
+
+## 5.0.0-rc.3
+
+* Improved dev tools
+
+## 5.0.0-rc.2
+
+* Disable certain features if browser `fetch` is unavailable
+* Update some API methods for coherent returns
+
+## 5.0.0-rc.1
+
+* Removed the switch statement in Android Native code to support older Java platforms
+
+## 5.0.0-rc.0
+
+* Removed the deprecated API, to be added to version 4.2.0
+
+## 5.0.0-alpha.0
+
+* Rewrote the plugin in Typescript.
+* Added support for application file manifests.
+* Added full support for partial update downloads, greatly decreasing network bandwidth.
+* **Deprecated old plugin API** in favor of modern promise-based API using async/await.  Existing methods are still available, but may be removed in the future.
+
+## 4.1.7
+
+* Fix a redirect bug in iOS that would give the `background` update method inconsistent behavior
+
+## 4.1.6
+
+* Fix redirect bug in extract when version already exists (PR #82)
+
+## 4.1.5
+
+* Fix UUID storage bug on iOS (PR #79)
+
+## 4.1.4
+
+* Fix `checkAndApply` bug on Android (PR #77)
+
+## 4.1.3
+
+* Fix broken release (4.1.2)
+
+## 4.1.2
+
+* Handle `partial` flag from Pro API in `check-device` endpoint.
+
+## 4.1.1
+
+* Send plugin version to Ionic Pro when checking for updates.
+
+## 4.1.0
+
+* Added support for partial downloads.
+
+## 4.0.1
+
+* Fixed a bug where `deleteVersion` would errorwhen called. (PR #63)
+
+# 4.0.0
+
+* Removed some extraneous plugin result calls.
+* **BREAKING** Unified all API functions to return `true` on success.
+
+## 3.1.3
+
+* Fixed a bug where `ng-cordova` could potentially be overwritten when a deploy is applied.
+* Update no-zip branch
+
+## 3.1.2
 
 * Fixed the extract callback value
 * Fixed a bug where the splashscreen would show for long periods while using the `background` update method on Android
 
-# 3.1.1
+## 3.1.1
 
 * Fixed another issue with the cordova.js regex.
 
-# 3.1.0
+## 3.1.0
 
 * Added a `WARN_DEBUG` flag to allow bypass of the debug dialog. (PR $49)
 * Fixed a bug where minified script tags could be overwritten.
